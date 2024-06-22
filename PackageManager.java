@@ -97,7 +97,7 @@ public class PackageManager {
     }
 
     private static boolean doesPackagesFileExist() {
-        return new File("packages.json").exists();
+        return Files.exists(Paths.get("packages.json"));
     }
 
 }
@@ -142,23 +142,27 @@ class Packages {
     }
 
     public void download() {
-        String source = this.sources[0];
+        
         for(int i = 0; i < this.packages.size(); i++) {
-            try {
-                String[] rawPackage = this.packages.get(i).split(":");
-                String groupId = rawPackage[0].replace(".", "/");
-                String artifactId = rawPackage[1];
-                String version = rawPackage[2];
-                String jarName = artifactId + "-" + version + ".jar";
-                if(Files.notExists(Paths.get("lib/" + jarName))){
-                    String fullPath = source + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
-                    URL url = new URL(fullPath);
-                    System.out.println("Downloading from: " + fullPath);
-                    InputStream in = url.openStream();
-                    Files.copy(in, Paths.get("lib/" + jarName), StandardCopyOption.REPLACE_EXISTING);
+            for(int c = 0; c < this.sources.length; c++) {
+                try {
+                    String[] rawPackage = this.packages.get(i).split(":");
+                    String groupId = rawPackage[0].replace(".", "/");
+                    String artifactId = rawPackage[1];
+                    String version = rawPackage[2];
+                    String jarName = artifactId + "-" + version + ".jar";
+                    if(Files.notExists(Paths.get("lib/" + jarName))){
+                        String fullPath = this.sources[c] + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
+                        URL url = new URL(fullPath);
+                        System.out.print("Downloading package: " + fullPath + " .. ");
+                        InputStream in = url.openStream();
+                        Files.copy(in, Paths.get("lib/" + jarName), StandardCopyOption.REPLACE_EXISTING);
+                        System.err.println(" Success!");
+                    }
+                    break;
+                }catch(Exception e){
+                    System.err.println(" Failed!");
                 }
-            }catch(Exception e){
-                System.err.println("Could not download package: " + this.packages.get(i));
             }
         }
     }
