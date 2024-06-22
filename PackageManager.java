@@ -15,6 +15,10 @@ import com.google.gson.GsonBuilder;
 
 public class PackageManager {
 
+    public static final String[] defaultSources = new String[]{
+        "https://repo1.maven.org/maven2"
+    };
+
     public static void main(String[] args) throws Exception {
         if (args.length <= 0) {
             PackageManager.showHelp();
@@ -33,6 +37,9 @@ public class PackageManager {
             case "install":
                 PackageManager.installPackages();
                 break;
+            case "fetch":
+                PackageManager.fetch(args);
+                break;
         }
     }
 
@@ -41,6 +48,7 @@ public class PackageManager {
         System.out.println("add - Add a package to the \"packages.json\" file.");
         System.out.println("remove - Remove a package from the \"packages.json\" file.");
         System.out.println("install - Download all packages in the \"packages.json\" file.");
+        System.out.println("fetch - Download a specific jar and output it in the current working directory.");
     }
 
     public static void init() throws IOException {
@@ -96,6 +104,28 @@ public class PackageManager {
         }
     }
 
+    public static void fetch(String[] args) {
+        for (int i = 0; i < PackageManager.defaultSources.length; i++) {
+            try {
+                String[] rawPackage = args[1].split(":");
+                String groupId = rawPackage[0].replace(".", "/");
+                String artifactId = rawPackage[1];
+                String version = rawPackage[2];
+                String jarName = artifactId + "-" + version + ".jar";
+                
+                String fullPath = PackageManager.defaultSources[i] + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
+                URL url = new URL(fullPath);
+                System.out.print("Downloading package: " + fullPath + " .. ");
+                InputStream in = url.openStream();
+                Files.copy(in, Paths.get(jarName), StandardCopyOption.REPLACE_EXISTING);
+                System.err.println("Success!");
+                break;
+            } catch (Exception e) {
+                System.err.println("Failed!");
+            }
+        }
+    }
+
     private static boolean doesPackagesFileExist() {
         return Files.exists(Paths.get("packages.json"));
     }
@@ -105,7 +135,7 @@ public class PackageManager {
 class Packages {
 
     public final String version = "1.0";
-    public final String[] sources = new String[] { "https://repo1.maven.org/maven2" };
+    public final String[] sources = PackageManager.defaultSources;
     public ArrayList<String> packages;
 
     public Packages(String[] packages) {
@@ -136,23 +166,22 @@ class Packages {
             System.out.println("Removed package: \"" + name + "\".");
             return true;
         }
-
         System.err.println("No package found with name: \"" + name + "\".");
         return false;
     }
 
     public void download() {
-        
-        for(int i = 0; i < this.packages.size(); i++) {
-            for(int c = 0; c < this.sources.length; c++) {
+        for (int i = 0; i < this.packages.size(); i++) {
+            for (int c = 0; c < this.sources.length; c++) {
                 try {
                     String[] rawPackage = this.packages.get(i).split(":");
                     String groupId = rawPackage[0].replace(".", "/");
                     String artifactId = rawPackage[1];
                     String version = rawPackage[2];
                     String jarName = artifactId + "-" + version + ".jar";
-                    if(Files.notExists(Paths.get("lib/" + jarName))){
-                        String fullPath = this.sources[c] + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
+                    if (Files.notExists(Paths.get("lib/" + jarName))) {
+                        String fullPath = this.sources[c] + "/" + groupId + "/" + artifactId + "/" + version + "/"
+                                + jarName;
                         URL url = new URL(fullPath);
                         System.out.print("Downloading package: " + fullPath + " .. ");
                         InputStream in = url.openStream();
@@ -160,7 +189,7 @@ class Packages {
                         System.err.println("Success!");
                     }
                     break;
-                }catch(Exception e){
+                } catch (Exception e) {
                     System.err.println("Failed!");
                 }
             }
