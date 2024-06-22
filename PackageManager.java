@@ -15,6 +15,7 @@ import com.google.gson.GsonBuilder;
 
 public class PackageManager {
 
+    public static final String version = "1.0";
     public static final String[] defaultSources = new String[]{
         "https://repo1.maven.org/maven2"
     };
@@ -44,6 +45,8 @@ public class PackageManager {
     }
 
     public static void showHelp() {
+        System.out.println("Java Package Manager. " + version);
+        System.out.println("");
         System.out.println("init - Create an empty \"packages.json\" file.");
         System.out.println("add - Add a package to the \"packages.json\" file.");
         System.out.println("remove - Remove a package from the \"packages.json\" file.");
@@ -134,7 +137,7 @@ public class PackageManager {
 
 class Packages {
 
-    public final String version = "1.0";
+    public final String version = PackageManager.version;
     public final String[] sources = PackageManager.defaultSources;
     public ArrayList<String> packages;
 
