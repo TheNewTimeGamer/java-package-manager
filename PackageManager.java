@@ -150,12 +150,13 @@ class Packages {
                 String artifactId = rawPackage[1];
                 String version = rawPackage[2];
                 String jarName = artifactId + "-" + version + ".jar";
-
-                String fullPath = source + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
-                URL url = new URL(fullPath);
-                System.out.println("Downloading from: " + fullPath);
-                InputStream in = url.openStream();
-                Files.copy(in, Paths.get("lib/" + jarName), StandardCopyOption.REPLACE_EXISTING);
+                if(Files.notExists(Paths.get("lib/" + jarName))){
+                    String fullPath = source + "/" + groupId + "/" + artifactId + "/" + version + "/" + jarName;
+                    URL url = new URL(fullPath);
+                    System.out.println("Downloading from: " + fullPath);
+                    InputStream in = url.openStream();
+                    Files.copy(in, Paths.get("lib/" + jarName), StandardCopyOption.REPLACE_EXISTING);
+                }
             }catch(Exception e){
                 System.err.println("Could not download package: " + this.packages.get(i));
             }
