@@ -157,11 +157,11 @@ class Packages {
                         System.out.print("Downloading package: " + fullPath + " .. ");
                         InputStream in = url.openStream();
                         Files.copy(in, Paths.get("lib/" + jarName), StandardCopyOption.REPLACE_EXISTING);
-                        System.err.println(" Success!");
+                        System.err.println("Success!");
                     }
                     break;
                 }catch(Exception e){
-                    System.err.println(" Failed!");
+                    System.err.println("Failed!");
                 }
             }
         }
