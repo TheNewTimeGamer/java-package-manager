@@ -16,7 +16,7 @@ jar cfm PackageManager.jar manifest.txt -C out . -C lib gson-2.8.9.jar
 
 REM Check if JAR creation was successful
 if %errorlevel% neq 0 (
-    echo JAR creation failed.
+    echo JAR Creation failed.
     exit /b %errorlevel%
 )
 
